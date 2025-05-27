@@ -20,7 +20,6 @@ namespace Backend.Models.Database.Entities
 
         public string Category { get; set; }
         public string Description { get; set; }
-        public string Organizer { get; set; }       
 
         public string ImageUrl { get; set; }
 

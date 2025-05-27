@@ -1,8 +1,11 @@
 ﻿using Backend.Models.Database.Entities;
 using Backend.Models.Dtos;
 using Backend.Services;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Backend.Controllers;
 
@@ -56,18 +59,42 @@ public class EventController : ControllerBase
         return Ok(ev);
     }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(Guid id)
+    [HttpDelete("{id:guid}")]
+    [Authorize]
+    public async Task<IActionResult> DeleteEvent(Guid id)
     {
-        bool deleted = await _eventService.DeleteAsync(id);
-        if (!deleted) return NotFound();
-        return NoContent();
+        var userIdClaim = User.FindFirstValue("id");
+        if (string.IsNullOrEmpty(userIdClaim))
+            return Forbid();
+
+        if (!Guid.TryParse(userIdClaim, out var userId))
+            return Forbid();
+
+        bool ok;
+
+        try
+        {
+            ok = await _eventService.DeleteEventAsync(id, userId);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Event not found" });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = ex.Message });
+        }
+
+        if (!ok)
+            return Forbid(new AuthenticationProperties(), "Sólo el autor puede eliminar este evento.");
+
+        return Ok(new { message = "The Event was eliminated correctly" });
     }
 
     [HttpPost("{id}/join")]
     public async Task<IActionResult> Join(Guid id, Guid userId)
     {
-        var success = await _eventService.JoinAsync(id, userId); 
+        var success = await _eventService.JoinAsync(id, userId);
         if (!success)
             return BadRequest("No se pudo unir al evento.");
 
@@ -78,9 +105,20 @@ public class EventController : ControllerBase
     public async Task<IActionResult> Leave(Guid id, Guid userId)
     {
 
-        var success = await _eventService.LeaveAsync(id, userId);;
+        var success = await _eventService.LeaveAsync(id, userId); ;
         if (!success)
             return BadRequest("No se pudo abandonar al evento.");
         return Ok();
+    }
+
+    [HttpGet("user/{userId:guid}")]
+    public async Task<ActionResult<IEnumerable<Event>>> GetByUser(Guid userId)
+    {
+        var events = await _eventService.GetEventsByUserAsync(userId);
+
+        if (!events.Any())
+            return NotFound(new { message = "You haven’t organized or joined any events yet. Why not create one now?" });
+
+        return Ok(events);
     }
 }

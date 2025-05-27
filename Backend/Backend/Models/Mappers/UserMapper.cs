@@ -24,14 +24,39 @@ namespace Backend.Models.Mappers
                 Nationality = user.Nationality,
                 ErasmusCountry = user.ErasmusCountry,
                 Phone = user.Phone,
-                ErasmusDate = (int)(DateTime.Now - user.ErasmusDate.ToDateTime(TimeOnly.MinValue)).TotalDays,
+                ErasmusDate = (int)(DateTime.UtcNow - user.ErasmusDate.ToDateTime(TimeOnly.MinValue)).TotalDays,
                 SocialMedias = user.SocialMedias
-            .Select(sm => new SocialMediaLink
-            {
-                SocialMedia = sm.SocialMedia,
-                Url = sm.Url
-            })
-            .ToList()
+                    .Select(sm => new SocialMediaLinkDto
+                    {
+                        SocialMedia = sm.SocialMedia,
+                        Url = sm.Url
+                    })
+                    .ToList(),
+                Languages = user.Languages
+                    .Select(l => new UserLanguageDTO
+                    {
+                        Language = l.Language,
+                        Level = l.Level
+                    })
+                    .ToList(),
+                Followers = user.Followers?
+                    .Select(f => new UserRelationDto
+                    {
+                        Id = f.Follower.Id,
+                        Name = f.Follower.Name,
+                        AvatarUrl = f.Follower.AvatarUrl
+                    })
+                    .ToList()
+                    ?? new List<UserRelationDto>(),
+                Followings = user.Followings?
+                    .Select(f => new UserRelationDto
+                    {
+                        Id = f.Following.Id,
+                        Name = f.Following.Name,
+                        AvatarUrl = f.Following.AvatarUrl
+                    })
+                    .ToList()
+                    ?? new List<UserRelationDto>()
             };
         }
 

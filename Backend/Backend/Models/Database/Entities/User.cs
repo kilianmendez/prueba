@@ -36,9 +36,9 @@ public class User
 
     [Phone]
     public required string Phone { get; set; }
-    public ICollection<Accommodation> Accommodations { get; set; } = new List<Accommodation>();
-    public List<SocialMediaLink> SocialMedias { get; set; } = new List<SocialMediaLink>();
-    public List<Recommendation> Recommendations { get; set; } = new List<Recommendation>();
+    public  virtual ICollection<Accommodation> Accommodations { get; set; } = new List<Accommodation>();
+    public virtual List<SocialMediaLink> SocialMedias { get; set; } = new List<SocialMediaLink>();
+    public virtual List<Recommendation> Recommendations { get; set; } = new List<Recommendation>();
 
     [InverseProperty(nameof(Event.Creator))]
     public virtual ICollection<Event> CreatedEvents { get; set; } = new List<Event>();
@@ -46,5 +46,11 @@ public class User
     [InverseProperty(nameof(Event.Participants))]
     public virtual ICollection<Event> ParticipatingEvents { get; set; } = new List<Event>();
     public virtual Hosts? Host { get; set; }
+    public virtual ICollection<UserLanguage> Languages { get; set; } = new List<UserLanguage>();
 
+    [InverseProperty(nameof(Follow.Follower))]
+    public virtual ICollection<Follow> Followings { get; set; } = new List<Follow>();
+
+    [InverseProperty(nameof(Follow.Following))]
+    public virtual ICollection<Follow> Followers { get; set; } = new List<Follow>();
 }

@@ -23,6 +23,7 @@ namespace Backend.Models.Database.Repositories
             return await _context.Users
                 .Include(u => u.Accommodations)
                 .Include(u => u.SocialMedias)
+                .Include(u => u.Languages)
                 .SingleOrDefaultAsync(u => u.Id == id);
         }
 
@@ -30,6 +31,13 @@ namespace Backend.Models.Database.Repositories
         {
             return await _context.Users
                          .Include(u => u.SocialMedias)
+                         .SingleOrDefaultAsync(u => u.Id == id);
+        }
+
+        public async Task<User?> GetByIdWithLanguageAsync(Guid id)
+        {
+            return await _context.Users
+                         .Include(u => u.Languages)
                          .SingleOrDefaultAsync(u => u.Id == id);
         }
 
@@ -42,12 +50,26 @@ namespace Backend.Models.Database.Repositories
 
             foreach (var link in newLinks)
             {
-                
+
                 link.UserId = userId;
                 _context.SocialMediaLinks.Add(link);
             }
         }
 
+        public async Task ReplaceLanguagesAsync(Guid userId, List<UserLanguage> newLanguages)
+        {
+            var existing = await _context.UserLanguages
+                                                 .Where(sm => sm.UserId == userId)
+                                                 .ToListAsync();
+            _context.UserLanguages.RemoveRange(existing);
+
+            foreach (var language in newLanguages)
+            {
+
+                language.UserId = userId;
+                _context.UserLanguages.Add(language);
+            }
+        }
 
         public async Task<User?> GetByMailAsync(string mail)
         {
@@ -70,6 +92,21 @@ namespace Backend.Models.Database.Repositories
             user.Role = newRole;
             await _context.SaveChangesAsync();
             return true;
+        }
+        public async Task<List<User>> GetFollowersAsync(Guid userId)
+        {
+            return await _context.Follows
+                .Where(f => f.FollowingId == userId)
+                .Select(f => f.Follower)
+                .ToListAsync();
+        }
+
+        public async Task<List<User>> GetFollowingsAsync(Guid userId)
+        {
+            return await _context.Follows
+                .Where(f => f.FollowerId == userId)
+                .Select(f => f.Following)
+                .ToListAsync();
         }
     }
 }

@@ -16,7 +16,6 @@ namespace Backend.Models.Dtos
         [EmailAddress]
         public required string Mail { get; set; }
 
-
         public required Role Role { get; set; } = Role.User;
 
         public string Biography { get; set; }
@@ -32,7 +31,17 @@ namespace Backend.Models.Dtos
         [Phone]
         public string Phone { get; set; }
 
-        public List<SocialMediaLink> SocialMedias { get; set; } = new List<SocialMediaLink>();
-        public string Password { get; internal set; }
+        public List<SocialMediaLinkDto> SocialMedias { get; set; } = new();
+        //public string Password { get; internal set; }
+        public List<UserLanguageDTO> Languages { get; set; } = new List<UserLanguageDTO>();
+        public List<UserRelationDto> Followers { get; set; } = new List<UserRelationDto>();
+        public List<UserRelationDto> Followings { get; set; } = new List<UserRelationDto>();
+    }
+
+    public class UserRelationDto
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = null!;
+        public string AvatarUrl { get; set; } = null!;
     }
 }

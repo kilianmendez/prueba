@@ -1,5 +1,4 @@
 ﻿using Backend.Models.Database.Repositories;
-using SQLitePCL;
 
 namespace Backend.Models.Database;
 
@@ -13,6 +12,7 @@ public class UnitOfWork
     private EventRepository _eventRepository = null!;
     private ForumRepository _forumRepository = null!;
     private HostRepository _hostRepository = null!;
+    private AdminRepository _adminRepository = null!;
 
     public UserRepository UserRepository => _userRepository ??= new UserRepository(_dataContext);
     public RecommendationRepository RecommendationRepository => _recommendationRepository ??= new RecommendationRepository(_dataContext);
@@ -21,6 +21,7 @@ public class UnitOfWork
     public EventRepository EventRepository => _eventRepository ??= new EventRepository(_dataContext);
     public ForumRepository ForumRepository => _forumRepository ??= new ForumRepository(_dataContext);
     public HostRepository HostRepository => _hostRepository ??= new HostRepository(_dataContext);
+    public AdminRepository AdminRepository => _adminRepository ??= new AdminRepository(_dataContext);
 
     public UnitOfWork(DataContext dataContext)
     {

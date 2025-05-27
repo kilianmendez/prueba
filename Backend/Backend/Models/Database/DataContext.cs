@@ -25,6 +25,7 @@ public class DataContext : DbContext
     public DbSet<Messages> Messages { get; set; }
     public DbSet<Hosts> Hosts { get; set; }
     public DbSet<Speciality> Speciality { get; set; }
+    public DbSet<UserLanguage> UserLanguages { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.LogTo(Console.WriteLine);

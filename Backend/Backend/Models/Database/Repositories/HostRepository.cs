@@ -52,11 +52,9 @@ public class HostRepository : IHostRepository
     public async Task RejectAsync(Guid id)
     {
         var host = await _context.Hosts.FindAsync(id)
-                   ?? throw new KeyNotFoundException($"Host request {id} no encontrado.");
+                   ?? throw new KeyNotFoundException($"Host request {id} not found.");
 
-        host.Status = RequestStatus.Rejected;
-        host.UpdatedAt = DateTime.UtcNow;
-
+        _context.Hosts.Remove(host);
         await _context.SaveChangesAsync();
     }
 

@@ -30,11 +30,11 @@ public class HostsController : ControllerBase
         }
         catch (ArgumentException ex)
         {
-            return BadRequest(ex.Message);
+            return BadRequest(new { message = ex.Message });
         }
         catch (KeyNotFoundException ex)
         {
-            return NotFound(ex.Message);
+            return NotFound(new { message = ex.Message });
         }
     }
 
@@ -42,6 +42,9 @@ public class HostsController : ControllerBase
     public async Task<ActionResult<IEnumerable<User>>> GetApprovedHosts()
     {
         var users = await _hostService.GetApprovedHostsAsync();
+        if (!users.Any())
+            return Ok(new { message = "No approved hosts found." });
+
         return Ok(users);
     }
 
@@ -49,6 +52,9 @@ public class HostsController : ControllerBase
     public async Task<ActionResult<IEnumerable<Hosts>>> GetAllRequests()
     {
         var requests = await _hostService.GetAllRequestsAsync();
+        if (!requests.Any())
+            return Ok(new { message = "No host requests found." });
+
         return Ok(requests);
     }
 
@@ -56,7 +62,9 @@ public class HostsController : ControllerBase
     public async Task<ActionResult<Hosts>> GetRequest(Guid id)
     {
         var host = await _hostService.GetByIdAsync(id);
-        return host is null ? NotFound() : Ok(host);
+        return host is null
+            ? NotFound(new { message = "Host request not found." })
+            : Ok(host);
     }
 
     [HttpPost("{id:guid}/approve")]
@@ -65,11 +73,11 @@ public class HostsController : ControllerBase
         try
         {
             await _hostService.ApproveRequestAsync(id);
-            return NoContent();
+            return Ok(new { message = "Host request approved successfully." });
         }
         catch (KeyNotFoundException)
         {
-            return NotFound();
+            return NotFound(new { message = "Host request not found." });
         }
     }
 
@@ -79,11 +87,12 @@ public class HostsController : ControllerBase
         try
         {
             await _hostService.RejectRequestAsync(id);
-            return NoContent();
+            return Ok(new { message = "Host request rejected successfully." });
         }
         catch (KeyNotFoundException)
         {
-            return NotFound();
+            return NotFound(new { message = "Host request not found." });
         }
     }
+
 }
